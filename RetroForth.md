@@ -110,6 +110,26 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 :compile:ret  (-)  #10 , ;
 ````
 
+## Stack Queries &amp; Cleaning
+
+````
+:depth (-n) #-1 fetch ;
+:reset (...-) depth repeat 0; push drop pop #1 - again ;
+````
+
+## Stack Shufflers
+
+The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, and **dup**. There are quite a few more that are useful. These are provided here.
+
+````
+:tuck      (xy-yxy)   dup push swap pop ;
+:over      (xy-xyx)   push dup pop swap ;
+:dup-pair  (xy-xyxy)  over over ;
+:nip       (xy-y)     swap drop ;
+:drop-pair (nn-)      drop drop ;
+:?dup      (n-nn||n-n) dup 0; ;
+````
+
 ## Inlining
 
 ````
@@ -232,30 +252,31 @@ The **times** combinator runs a quote (n) times.
 :times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 ````
 
+**case** is a conditional combinator.
+
+Example:
+
+    :c:vowel?
+      $a [ TRUE ] case
+      $e [ TRUE ] case
+      $i [ TRUE ] case
+      $o [ TRUE ] case
+      $u [ TRUE ] case
+      drop FALSE ;
+
+````
+:case
+  [ over eq? ] dip swap
+  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
+````
+
 ## ...
 
 ````
 :compiling?  (-f)  &Compiler fetch ;
 ````
 
-## Stack Queries &amp; Cleaning
-
 ````
-:depth (-n) #-1 fetch ;
-:reset (...-) depth [ drop ] times ;
-````
-
-## Stack Shufflers
-
-The core Rx language provides a few basic stack shuffling words: **push**, **pop**, **drop**, **swap**, and **dup**. There are quite a few more that are useful. These are provided here.
-
-````
-:tuck      (xy-yxy)   dup push swap pop ;
-:over      (xy-xyx)   push dup pop swap ;
-:dup-pair  (xy-xyxy)  over over ;
-:nip       (xy-y)     swap drop ;
-:drop-pair (nn-)      drop drop ;
-:?dup      (n-nn||n-n) dup 0; ;
 :rot       (abc-bca)   [ swap ] dip swap ;
 ````
 
@@ -597,10 +618,6 @@ TRUE 's:RewriteUnderscores var<n>
 
 ````
 :cons (nn-p) here [ swap , , ] dip ;
-
-:case
-  [ over eq? ] dip swap
-  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 
 :s:for-each (sq-)
   [ repeat

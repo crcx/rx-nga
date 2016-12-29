@@ -15,6 +15,14 @@
 :compile:jump (a-) compile:lit #7 , ;
 :compile:call (a-) compile:lit #8 , ;
 :compile:ret  (-)  #10 , ;
+:depth (-n) #-1 fetch ;
+:reset (...-) depth repeat 0; push drop pop #1 - again ;
+:tuck      (xy-yxy)   dup push swap pop ;
+:over      (xy-xyx)   push dup pop swap ;
+:dup-pair  (xy-xyxy)  over over ;
+:nip       (xy-y)     swap drop ;
+:drop-pair (nn-)      drop drop ;
+:?dup      (n-nn||n-n) dup 0; ;
 :prefix:` (s-) &Compiler fetch [ s:to-number , ] [ drop ] choose ; immediate
 :d:create (s-)
   (s-) &class:data #0 d:add-header
@@ -42,15 +50,10 @@
 :while  (q-)  [ repeat dup dip swap 0; drop again ] call drop ;
 :until  (q-)  [ repeat dup dip swap #-1 xor 0; drop again ] call drop ;
 :times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
+:case
+  [ over eq? ] dip swap
+  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 :compiling?  (-f)  &Compiler fetch ;
-:depth (-n) #-1 fetch ;
-:reset (...-) depth [ drop ] times ;
-:tuck      (xy-yxy)   dup push swap pop ;
-:over      (xy-xyx)   push dup pop swap ;
-:dup-pair  (xy-xyxy)  over over ;
-:nip       (xy-y)     swap drop ;
-:drop-pair (nn-)      drop drop ;
-:?dup      (n-nn||n-n) dup 0; ;
 :rot       (abc-bca)   [ swap ] dip swap ;
 :tors (-n)  pop pop dup push swap push ;
 :/         (nq-d)  /mod swap drop ;
@@ -203,9 +206,6 @@ TRUE 's:RewriteUnderscores var<n>
 :does (q-)
   d:last<xt> swap curry d:last d:xt store &class:word reclass ;
 :cons (nn-p) here [ swap , , ] dip ;
-:case
-  [ over eq? ] dip swap
-  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
 :s:for-each (sq-)
   [ repeat
       over fetch 0; drop
