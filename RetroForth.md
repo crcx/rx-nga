@@ -472,6 +472,48 @@ Trimming removes leading (**s:trim-left**) or trailing (**s:trim-right**) spaces
 }}
 ````
 
+## s:filter
+
+Return a new string, consisting of the characters from another string that are filtered by a quotation.
+
+    'This_is_a_test [ chr:-vowel? ] s:filter
+
+## s:map
+
+Return a new string resulting from applying a quotation to each character in a source string.
+
+    'This_is_a_test [ $_ [ chr:SPACE ] case ] s:map
+
+````
+{{
+  'Source var
+  'Q var
+  :*Source &Source fetch ;
+  :<Source> *Source fetch ;
+  :run-filter &Q fetch call ;
+---reveal---
+  :s:filter (sq-s)
+    &Q store  &Source store
+    s:empty buffer:set
+    *Source s:length
+    [ <Source> run-filter [ <Source> buffer:add ] if
+      &Source v:inc
+    ] times
+    buffer:start
+  ;
+  :s:map (sq-s)
+    &Q store  &Source store
+    s:empty buffer:set
+    *Source s:length
+    [ <Source> run-filter buffer:add
+      &Source v:inc
+    ] times
+    buffer:start
+  ;
+}}
+````
+
+
 Hash (using DJB2)
 
 ````
@@ -503,8 +545,8 @@ Hash (using DJB2)
   [ ASCII:SPACE eq? ]
   [ ASCII:TAB   eq? ]
   [ [ ASCII:LF eq? ] [ ASCII:CR eq? ] bi or ] tri or or ;
-:c:to-upper     (c-c) ASCII:SPACE - ;
-:c:to-lower     (c-c) ASCII:SPACE + ;
+:c:to-upper     (c-c) dup c:lowercase? 0; drop ASCII:SPACE - ;
+:c:to-lower     (c-c) dup c:uppercase? 0; drop ASCII:SPACE + ;
 :c:toggle-case  (c-c) dup c:lowercase? [ c:to-upper ] [ c:to-lower ] choose ;
 :c:to-string    (c-s) '. s:temp [ store ] sip ;
 :c:visible?     (c-f) #31 #126 n:between? ;
