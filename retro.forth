@@ -3,10 +3,10 @@
 :prefix:( drop ;
   &class:macro
   &Dictionary fetch d:class store
-:d:last (-d) &Dictionary fetch ;
-:d:last<xt> (-a) d:last d:xt fetch ;
+:d:last        (-d) &Dictionary fetch ;
+:d:last<xt>    (-a) d:last d:xt fetch ;
 :d:last<class> (-a) d:last d:class fetch ;
-:d:last<name> (-s) d:last d:name ;
+:d:last<name>  (-s) d:last d:name ;
 :reclass    (a-) d:last d:class store ;
 :immediate  (-)  &class:macro reclass ;
 :data       (-)  &class:data reclass ;
@@ -24,10 +24,13 @@
 :const  (ns-) d:create d:last d:xt store ;
 :TRUE  (-n) #-1 ;
 :FALSE (-n)  #0 ;
-:n:zero?     (n-f)   #0 eq? ;
-:n:-zero?    (n-f)   #0 -eq? ;
+:n:zero?      (n-f)   #0 eq? ;
+:n:-zero?     (n-f)   #0 -eq? ;
 :n:negative?  (n-f)  #0 lt? ;
-:n:positive?  (n-f)  #0 gt? ;
+:n:positive?  (n-f)  #-1 gt? ;
+:n:strictly-positive?  (n-f)  #0 gt? ;
+:n:even?      (n-f)  #2 /mod drop n:zero? ;
+:n:odd?       (n-f)  #2 /mod drop n:-zero? ;
 :dip  (nq-n)  swap push call pop ;
 :sip  (nq-n)  push dup pop swap &call dip ;
 :bi  (xqq-)  &sip dip call ;
@@ -129,18 +132,21 @@
 ---reveal---
   :s:hash  (s-n)  #5381 swap <s:hash> drop ;
 }}
-:c:SPACE        (-c)  #32 ;
-:c:ESC          (-c)  #27 ;
-:c:TAB          (-c)  #9 ;
-:c:CR           (-c)  #13 ;
-:c:LF           (-c)  #10 ;
+:ASCII:SPACE   (-c)  #32 ;
+:ASCII:ESC     (-c)  #27 ;
+:ASCII:TAB     (-c)  #9 ;
+:ASCII:CR      (-c)  #13 ;
+:ASCII:LF      (-c)  #10 ;
 :c:letter?      (c-f) $A $z n:between? ;
 :c:lowercase?   (c-f) $a $z n:between? ;
 :c:uppercase?   (c-f) $A $Z n:between? ;
 :c:digit?       (c-f) $0 $9 n:between? ;
-:c:whitespace?  (c-f) [ c:SPACE eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
-:c:to-upper     (c-c) c:SPACE - ;
-:c:to-lower     (c-c) c:SPACE + ;
+:c:whitespace?  (c-f)
+  [ ASCII:SPACE eq? ]
+  [ ASCII:TAB   eq? ]
+  [ [ ASCII:LF eq? ] [ ASCII:CR eq? ] bi or ] tri or or ;
+:c:to-upper     (c-c) ASCII:SPACE - ;
+:c:to-lower     (c-c) ASCII:SPACE + ;
 :c:toggle-case  (c-c) dup c:lowercase? [ c:to-upper ] [ c:to-lower ] choose ;
 :c:to-string    (c-s) '. s:temp [ store ] sip ;
 :c:visible?     (c-f) #31 #126 n:between? ;
@@ -153,8 +159,10 @@
     &Value fetch n:negative? [ $- buffer:add ] if
     buffer:start s:reverse s:temp ;
 }}
-:cons (nn-p) here [ swap , , ] dip ;
 :curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
+:does (q-)
+  d:last<xt> swap curry d:last d:xt store &class:word reclass ;
+:cons (nn-p) here [ swap , , ] dip ;
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
@@ -166,8 +174,6 @@
       [ n:inc ] dip
     again
   ] call drop-pair ;
-:does (q-)
-  d:last<xt> swap curry d:last d:xt store &class:word reclass ;
 {{
   :SystemState `0 `0 `0 ;
 ---reveal---
@@ -186,6 +192,6 @@
   :reorder (...ss-?) [ from ] dip to ;
 }}
 :putc (c-) `1000 ;
-:nl   (-)  c:LF putc ;
+:nl   (-)  ASCII:LF putc ;
 :puts (s-) [ putc ] s:for-each ;
-:putn (n-) n:to-string puts c:SPACE putc ;
+:putn (n-) n:to-string puts ASCII:SPACE putc ;
