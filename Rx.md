@@ -33,7 +33,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 :Heap
   .data 1536
 :Version
-  .data 201611
+  .data 201612
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
