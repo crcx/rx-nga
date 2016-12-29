@@ -295,6 +295,8 @@ The core Rx language provides addition, subtraction, multiplication, and a combi
 :v:inc     (n-n)   #1 swap v:inc-by ;
 :v:dec     (n-n)   #1 swap v:dec-by ;
 :v:limit   (alu-)  push push dup fetch pop pop n:limit swap store ;
+:v:on      (a-)    TRUE swap store ;
+:v:off     (a-)    FALSE swap store ;
 :allot     (n-)    &Heap v:inc-by ;
 ````
 
@@ -525,6 +527,25 @@ Convert a decimal (base 10) number to a string.
 ````
 
 ## Unsorted
+
+Replace the old prefix:' with this one that can optionally turn underscores into spaces.
+
+````
+TRUE 's:RewriteUnderscores var<n>
+
+:<string>
+  &s:RewriteUnderscores fetch
+  [ [ dup s:length
+      [ dup fetch
+        dup $_ eq? [ drop #32 ] if
+        over store n:inc
+      ] times drop
+    ] sip
+  ] if
+  &prefix:' call ;
+
+:prefix:' <string> ; immediate
+````
 
 ````
 :curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;

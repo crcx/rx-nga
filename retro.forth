@@ -73,6 +73,8 @@
 :v:inc     (n-n)   #1 swap v:inc-by ;
 :v:dec     (n-n)   #1 swap v:dec-by ;
 :v:limit   (alu-)  push push dup fetch pop pop n:limit swap store ;
+:v:on      (a-)    TRUE swap store ;
+:v:off     (a-)    FALSE swap store ;
 :allot     (n-)    &Heap v:inc-by ;
 :v:update-using (aq-) swap [ fetch swap call ] sip store ;
 :ScopeList `0 `0 ;
@@ -159,6 +161,18 @@
     &Value fetch n:negative? [ $- buffer:add ] if
     buffer:start s:reverse s:temp ;
 }}
+TRUE 's:RewriteUnderscores var<n>
+:<string>
+  &s:RewriteUnderscores fetch
+  [ [ dup s:length
+      [ dup fetch
+        dup $_ eq? [ drop #32 ] if
+        over store n:inc
+      ] times drop
+    ] sip
+  ] if
+  &prefix:' call ;
+:prefix:' <string> ; immediate
 :curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
 :does (q-)
   d:last<xt> swap curry d:last d:xt store &class:word reclass ;
