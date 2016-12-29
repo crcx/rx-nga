@@ -571,6 +571,16 @@ Hash (using DJB2)
 :c:toggle-case  (c-c) dup c:lowercase? [ c:to-upper ] [ c:to-lower ] choose ;
 :c:to-string    (c-s) '. s:temp [ store ] sip ;
 :c:visible?     (c-f) #31 #126 n:between? ;
+:c:vowel?       (c-f)
+  c:to-lower
+  $a [ TRUE ] case
+  $e [ TRUE ] case
+  $i [ TRUE ] case
+  $o [ TRUE ] case
+  $u [ TRUE ] case
+  drop FALSE ;
+:c:consonant?   (c-f)
+  dup c:letter? [ c:vowel? not ] [ drop FALSE ] choose ;
 ````
 
 ## Number to String
