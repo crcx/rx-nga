@@ -12,12 +12,12 @@ Various past releases have had different methods of dealing with the dictionary.
 
 | namespace  | words related to   |
 | ---------- | ------------------ |
-| chr        | characters         |
+| c          | characters         |
 | compile    | compiler functions |
 | d          | dictionary headers |
 | err        | error handlers     |
 | n          | numbers            |
-| str        | strings            |
+| s          | strings            |
 | v          | variables          |
 
 ### Prefixes
@@ -112,12 +112,12 @@ This is used to change the class from **class:word** to **class:macro**. Doing t
 ## Inlining
 
 ````
-:prefix:` (s-) &Compiler fetch [ str:to-number , ] [ drop ] choose ; immediate
+:prefix:` (s-) &Compiler fetch [ s:to-number , ] [ drop ] choose ; immediate
 ````
 
 ## Support for Variables, Constants
 
-These aren't really useful until the **str:** namespace is compiled later on. With strings and the **'** prefix:
+These aren't really useful until the **s:** namespace is compiled later on. With strings and the **'** prefix:
 
 | To create a                  | Use a form like    |
 | ---------------------------- | ------------------ |
@@ -144,8 +144,8 @@ These aren't really useful until the **str:** namespace is compiled later on. Wi
 ## Comparators
 
 ````
-:n:zero?     (n-f)  #0 eq? ;
-:n:-zero?    (n-f)  #0 -eq? ;
+:n:zero?     (n-f)   #0 eq? ;
+:n:-zero?    (n-f)   #0 -eq? ;
 :n:negative?  (n-f)  #0 lt? ;
 :n:positive?  (n-f)  #0 gt? ;
 ````
@@ -388,19 +388,19 @@ Temporary strings are allocated in a circular pool (at STRINGS).
 ````
 {{
   :MAX-LENGTH #128 ;
-  :str:Current `0 ; data
+  :s:Current `0 ; data
 
-  :str:pointer (-p)  &str:Current fetch MAX-LENGTH * STRINGS + ;
-  :str:next    (-) &str:Current v:inc &str:Current fetch #12 eq? [ #0 &str:Current store ] if ;
+  :s:pointer (-p)  &s:Current fetch MAX-LENGTH * STRINGS + ;
+  :s:next    (-) &s:Current v:inc &s:Current fetch #12 eq? [ #0 &s:Current store ] if ;
 ---reveal---
-  :str:temp (s-s) dup str:length n:inc str:pointer swap copy str:pointer str:next ;
-  :str:empty (-s) str:pointer str:next ;
+  :s:temp (s-s) dup s:length n:inc s:pointer swap copy s:pointer s:next ;
+  :s:empty (-s) s:pointer s:next ;
 }}
 ````
 
 Permanent strings are compiled into memory. To skip over them a helper function is used. When compiled into a definition this will look like:
 
-    lit &str:skip
+    lit &s:skip
     call
     :stringbegins
     .data 98
@@ -409,54 +409,54 @@ Permanent strings are compiled into memory. To skip over them a helper function 
     .data 0
     lit &stringbegins
 
-The **str:skip** adjusts the Nga instruction pointer to skip to the code following the stored string.
+The **s:skip** adjusts the Nga instruction pointer to skip to the code following the stored string.
 
 ````
-:str:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
-:str:keep (s-s) compiling? [ &str:skip class:word ] if here [ s, ] dip class:data ;
+:s:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
+:s:keep (s-s) compiling? [ &s:skip class:word ] if here [ s, ] dip class:data ;
 ````
 
 ````
-:prefix:' compiling? [ str:keep ] [ str:temp ] choose ; immediate
+:prefix:' compiling? [ s:keep ] [ s:temp ] choose ; immediate
 ````
 
-**str:chop** removes the last character from a string.
+**s:chop** removes the last character from a string.
 
 ````
-:str:chop (s-s) str:temp dup str:length over + n:dec #0 swap store ;
+:s:chop (s-s) s:temp dup s:length over + n:dec #0 swap store ;
 ````
 
-**str:reverse** reverses the order of a string. E.g.,
+**s:reverse** reverses the order of a string. E.g.,
 
     'hello'  ->  'olleh'
 
 ````
-:str:reverse (s-s)
-  dup str:temp buffer:set &str:length [ dup str:length + n:dec ] bi swap
-  [ dup fetch buffer:add n:dec ] times drop buffer:start str:temp ;
+:s:reverse (s-s)
+  dup s:temp buffer:set &s:length [ dup s:length + n:dec ] bi swap
+  [ dup fetch buffer:add n:dec ] times drop buffer:start s:temp ;
 ````
 
-Trimming removes leading (**str:trim-left**) or trailing (**str:trim-right**) spaces from a string. **str:trim** removes both leading and trailing spaces.
+Trimming removes leading (**s:trim-left**) or trailing (**s:trim-right**) spaces from a string. **s:trim** removes both leading and trailing spaces.
 
 ````
-:str:trim-left (s-s) str:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while n:dec ;
-:str:trim-right (s-s) str:temp str:reverse str:trim-left str:reverse ;
-:str:trim (s-s) str:trim-right str:trim-left ;
+:s:trim-left (s-s) s:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while n:dec ;
+:s:trim-right (s-s) s:temp s:reverse s:trim-left s:reverse ;
+:s:trim (s-s) s:trim-right s:trim-left ;
 ````
 
-**str:prepend** and **str:append** for concatenating strings together.
+**s:prepend** and **s:append** for concatenating strings together.
 
 ````
-:str:prepend (ss-s)
-  str:temp [ dup str:length + [ dup str:length n:inc ] dip swap copy ] sip ;
-:str:append (ss-s) swap str:prepend ;
+:s:prepend (ss-s)
+  s:temp [ dup s:length + [ dup s:length n:inc ] dip swap copy ] sip ;
+:s:append (ss-s) swap s:prepend ;
 ````
 
 ````
 {{
   :Needle `0 ; data
 ---reveal---
-  :str:has-char?  (sc-f)
+  :s:has-char?  (sc-f)
    &Needle store
    repeat
      fetch-next
@@ -470,30 +470,30 @@ Hash (using DJB2)
 
 ````
 {{
-  :<str:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
+  :<s:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
 ---reveal---
-  :str:hash  (s-n)  #5381 swap <str:hash> drop ;
+  :s:hash  (s-n)  #5381 swap <s:hash> drop ;
 }}
 ````
 
 ## Characters
 
 ````
-:chr:SPACE        (-c)  #32 ;
-:chr:ESC          (-c)  #27 ;
-:chr:TAB          (-c)  #9 ;
-:chr:CR           (-c)  #13 ;
-:chr:LF           (-c)  #10 ;
-:chr:letter?      (c-f) $A $z n:between? ;
-:chr:lowercase?   (c-f) $a $z n:between? ;
-:chr:uppercase?   (c-f) $A $Z n:between? ;
-:chr:digit?       (c-f) $0 $9 n:between? ;
-:chr:whitespace?  (c-f) [ chr:SPACE eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
-:chr:to-upper     (c-c) chr:SPACE - ;
-:chr:to-lower     (c-c) chr:SPACE + ;
-:chr:toggle-case  (c-c) dup chr:lowercase? [ chr:to-upper ] [ chr:to-lower ] choose ;
-:chr:to-string    (c-s) '. str:temp [ store ] sip ;
-:chr:visible?     (c-f) #31 #126 n:between? ;
+:c:SPACE        (-c)  #32 ;
+:c:ESC          (-c)  #27 ;
+:c:TAB          (-c)  #9 ;
+:c:CR           (-c)  #13 ;
+:c:LF           (-c)  #10 ;
+:c:letter?      (c-f) $A $z n:between? ;
+:c:lowercase?   (c-f) $a $z n:between? ;
+:c:uppercase?   (c-f) $A $Z n:between? ;
+:c:digit?       (c-f) $0 $9 n:between? ;
+:c:whitespace?  (c-f) [ c:SPACE eq? ] [ #9 eq? ] [ [ #10 eq? ] [ #13 eq? ] bi or ] tri or or ;
+:c:to-upper     (c-c) c:SPACE - ;
+:c:to-lower     (c-c) c:SPACE + ;
+:c:toggle-case  (c-c) dup c:lowercase? [ c:to-upper ] [ c:to-lower ] choose ;
+:c:to-string    (c-s) '. s:temp [ store ] sip ;
+:c:visible?     (c-f) #31 #126 n:between? ;
 ````
 
 ## Number to String
@@ -508,7 +508,7 @@ Convert a decimal (base 10) number to a string.
     here buffer:set dup &Value store n:abs
     [ #10 /mod swap $0 + buffer:add dup n:-zero? ] while drop
     &Value fetch n:negative? [ $- buffer:add ] if
-    buffer:start str:reverse str:temp ;
+    buffer:start s:reverse s:temp ;
 }}
 ````
 
@@ -520,7 +520,7 @@ Convert a decimal (base 10) number to a string.
 :case
   [ over eq? ] dip swap
   [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
-:str:for-each (sq-)
+:s:for-each (sq-)
   [ repeat
       over fetch 0; drop
       dup-pair
@@ -548,8 +548,8 @@ Convert a decimal (base 10) number to a string.
 ````
 {{
   'Values var #8 allot
-  :from str:length dup [ [ &Values + store ] sip n:dec ] times drop ;
-  :to dup str:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
+  :from s:length dup [ [ &Values + store ] sip n:dec ] times drop ;
+  :to dup s:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
 ---reveal---
   :reorder (...ss-?) [ from ] dip to ;
 }}
@@ -566,9 +566,9 @@ Retro really only provides one I/O function in the standard interface: pushing a
 This can be used to implement words that push other item to the log.
 
 ````
-:nl   (-)  chr:LF putc ;
-:puts (s-) [ putc ] str:for-each ;
-:putn (n-) n:to-string puts chr:SPACE putc ;
+:nl   (-)  c:LF putc ;
+:puts (s-) [ putc ] s:for-each ;
+:putn (n-) n:to-string puts c:SPACE putc ;
 ````
 
 ## The End

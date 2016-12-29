@@ -122,7 +122,7 @@
   drop
   lit &count
   jump
-:str:length
+:s:length
   dup
   lit &count
   call
@@ -163,26 +163,26 @@
   zret
   lit &compare
   jump
-:str:compare:mismatched
+:s:compare:mismatched
   drop
   drop
   lit 0
   dup
   ret
-:str:eq
+:s:eq
   lit &dup-pair
   call
-  lit &str:length
+  lit &s:length
   call
   swap
-  lit &str:length
+  lit &s:length
   call
   neq?
-  lit &str:compare:mismatched
+  lit &s:compare:mismatched
   ccall
   zret
   dup
-  lit &str:length
+  lit &s:length
   call
   lit -1
   swap
@@ -356,7 +356,7 @@
   call
   lit &Needle
   fetch
-  lit &str:eq
+  lit &s:eq
   call
   lit &found
   ccall
@@ -417,7 +417,7 @@
   lit 1
   add
   ret
-:str:to-number
+:s:to-number
   lit &to-number:prepare
   call
   lit &to-number:convert
@@ -453,7 +453,7 @@
   neq?
   ret
 :prefix:#
-  lit &str:to-number
+  lit &s:to-number
   call
   lit &class:data
   call
@@ -752,19 +752,19 @@
   .string store-next
 :0024
   .ref 0023
-  .ref str:to-number
+  .ref s:to-number
   .ref class:word
-  .string str:to-number
+  .string s:to-number
 :0025
   .ref 0024
-  .ref str:eq
+  .ref s:eq
   .ref class:word
-  .string str:eq?
+  .string s:eq?
 :0026
   .ref 0025
-  .ref str:length
+  .ref s:length
   .ref class:word
-  .string str:length
+  .string s:length
 :0027
   .ref 0026
   .ref choose

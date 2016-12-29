@@ -1,7 +1,7 @@
     ____  _   _
     || \\ \\ //
     ||_//  )x(
-    || \\ // \\ 2016.11
+    || \\ // \\ 2016.12
     a minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
@@ -212,7 +212,7 @@ First up, string length. The process here is trivial:
   drop
   lit &count
   jump
-:str:length
+:s:length
   dup
   lit &count
   call
@@ -258,26 +258,26 @@ String comparisons are harder.
   zret
   lit &compare
   jump
-:str:compare:mismatched
+:s:compare:mismatched
   drop
   drop
   lit 0
   dup
   ret
-:str:eq
+:s:eq
   lit &dup-pair
   call
-  lit &str:length
+  lit &s:length
   call
   swap
-  lit &str:length
+  lit &s:length
   call
   neq?
-  lit &str:compare:mismatched
+  lit &s:compare:mismatched
   ccall
   zret
   dup
-  lit &str:length
+  lit &s:length
   call
   lit -1
   swap
@@ -588,7 +588,7 @@ Rx doesn't provide a traditional create as it's designed to avoid assuming a nor
   call
   lit &Needle
   fetch
-  lit &str:eq
+  lit &s:eq
   call
   lit &found
   ccall
@@ -669,7 +669,7 @@ At this time Rx only supports decimal numbers.
   lit 1
   add
   ret
-:str:to-number
+:s:to-number
   lit &to-number:prepare
   call
   lit &to-number:convert
@@ -734,7 +734,7 @@ Rx uses prefixes for important bits of functionality including parsing numbers (
 
 ````
 :prefix:#
-  lit &str:to-number
+  lit &s:to-number
   call
   lit &class:data
   call
@@ -834,7 +834,7 @@ Begin a quotation with **[** and end it with **]**.
 
 Rx provides a couple of functions for simple flow control apart from using quotations. These are **repeat**, **again**, and **0;**. An example of using them:
 
-    : str:length dup repeat @+ 0; drop again swap - #1 - ;
+    : s:length dup repeat @+ 0; drop again swap - #1 - ;
 
 These can only be used within a definition or quotation. If you need to use them interactively, wrap them in a quote and **call** it.
 
@@ -1098,19 +1098,19 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
   .string store-next
 :0024
   .ref 0023
-  .ref str:to-number
+  .ref s:to-number
   .ref class:word
-  .string str:to-number
+  .string s:to-number
 :0025
   .ref 0024
-  .ref str:eq
+  .ref s:eq
   .ref class:word
-  .string str:eq?
+  .string s:eq?
 :0026
   .ref 0025
-  .ref str:length
+  .ref s:length
   .ref class:word
-  .string str:length
+  .string s:length
 :0027
   .ref 0026
   .ref choose
@@ -1290,9 +1290,9 @@ The dictionary is a linked list. This sets up the initial dictionary. Maintenanc
 | push            | n-        | Move value from data stack to address stack       |
 | pop             | -n        | Move value from address stack to data stack       |
 | 0;              | n-n OR n- | Exit word (and **drop**) if TOS is zero           |
-| str:to-number   | s-n       | Convert a string to a number                      |
-| str:eq?         | ss-f      | Compare two strings for equality                  |
-| str:length      | s-n       | Return length of string                           |
+| s:to-number     | s-n       | Convert a string to a number                      |
+| s:eq?           | ss-f      | Compare two strings for equality                  |
+| s:length        | s-n       | Return length of string                           |
 | choose          | fpp-?     | Execute *p1* if *f* is -1, or *p2* if *f* is 0    |
 | if              | fp-?      | Execute *p* if flag *f* is true (-1)              |
 | -if             | fp-?      | Execute *p* if flag *f* is false (0)              |
