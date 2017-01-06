@@ -1,7 +1,7 @@
     ____  _   _
     || \\ \\ //
     ||_//  )x(
-    || \\ // \\ 2016.12
+    || \\ // \\ 2017.01
     a minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
@@ -33,7 +33,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 :Heap
   .data 1536
 :Version
-  .data 201612
+  .data 201701
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
@@ -698,6 +698,9 @@ Prefixes are handled by functions with specific naming conventions. A prefix nam
 Where *&lt;prefix-char&gt;* is the character for the prefix. These should be compiler macros (using the **class:macro** class) and watch the **compiler** state to decide how to deal with the token. To find a prefix, Rx stores the prefix character into a string named **prefixed**. It then searches for this string in the dictionary. If found, it sets an internal variable (**prefix:handler**) to the dictionary entry for the handler function. If not found, **prefix:handler** is set to zero. The check, done by **prefix?**, also returns a flag.
 
 ````
+:prefix:no
+  .data 32
+  .data 0
 :prefix:handler
   .data 0
 :prefixed
@@ -709,7 +712,20 @@ Where *&lt;prefix-char&gt;* is the character for the prefix. These should be com
   add
   store
   ret
+:prefix:has-token?
+  dup
+  lit &s:length
+  call
+  lit 1
+  eq?
+  zret
+  drop
+  drop
+  lit &prefix:no
+  ret
 :prefix?
+  lit &prefix:has-token?
+  call
   lit &prefix:prepare
   call
   lit &prefixed

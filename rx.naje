@@ -3,7 +3,7 @@
 :Heap
   .data 1536
 :Version
-  .data 201612
+  .data 201701
 :_nop
   .data 0
   ret
@@ -429,6 +429,9 @@
   fetch
   mul
   ret
+:prefix:no
+  .data 32
+  .data 0
 :prefix:handler
   .data 0
 :prefixed
@@ -440,7 +443,20 @@
   add
   store
   ret
+:prefix:has-token?
+  dup
+  lit &s:length
+  call
+  lit 1
+  eq?
+  zret
+  drop
+  drop
+  lit &prefix:no
+  ret
 :prefix?
+  lit &prefix:has-token?
+  call
   lit &prefix:prepare
   call
   lit &prefixed
