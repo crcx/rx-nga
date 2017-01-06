@@ -163,18 +163,47 @@
 ---reveal---
   :s:hash  (s-n)  #5381 swap <s:hash> drop ;
 }}
-:ASCII:SPACE   (-c)  #32 ;
-:ASCII:ESC     (-c)  #27 ;
-:ASCII:TAB     (-c)  #9 ;
-:ASCII:CR      (-c)  #13 ;
+:ASCII:NUL     (-c)  #0 ;
+:ASCII:SOH     (-c)  #1 ;
+:ASCII:STX     (-c)  #2 ;
+:ASCII:ETX     (-c)  #3 ;
+:ASCII:EOT     (-c)  #4 ;
+:ASCII:ENQ     (-c)  #5 ;
+:ASCII:ACK     (-c)  #6 ;
+:ASCII:BEL     (-c)  #7 ;
+:ASCII:BS      (-c)  #8 ;
+:ASCII:HT      (-c)  #9 ;
 :ASCII:LF      (-c)  #10 ;
+:ASCII:VT      (-c)  #11 ;
+:ASCII:FF      (-c)  #12 ;
+:ASCII:CR      (-c)  #13 ;
+:ASCII:SO      (-c)  #14 ;
+:ASCII:SI      (-c)  #15 ;
+:ASCII:DLE     (-c)  #16 ;
+:ASCII:DC1     (-c)  #17 ;
+:ASCII:DC2     (-c)  #18 ;
+:ASCII:DC3     (-c)  #19 ;
+:ASCII:DC4     (-c)  #20 ;
+:ASCII:NAK     (-c)  #21 ;
+:ASCII:SYN     (-c)  #22 ;
+:ASCII:ETB     (-c)  #23 ;
+:ASCII:CAN     (-c)  #24 ;
+:ASCII:EM      (-c)  #25 ;
+:ASCII:SUB     (-c)  #26 ;
+:ASCII:ESC     (-c)  #27 ;
+:ASCII:FS      (-c)  #28 ;
+:ASCII:GS      (-c)  #29 ;
+:ASCII:RS      (-c)  #30 ;
+:ASCII:US      (-c)  #31 ;
+:ASCII:SPACE   (-c)  #32 ;
+:ASCII:DEL     (-c)  #127 ;
 :c:letter?      (c-f) $A $z n:between? ;
 :c:lowercase?   (c-f) $a $z n:between? ;
 :c:uppercase?   (c-f) $A $Z n:between? ;
 :c:digit?       (c-f) $0 $9 n:between? ;
 :c:whitespace?  (c-f)
   [ ASCII:SPACE eq? ]
-  [ ASCII:TAB   eq? ]
+  [ ASCII:HT    eq? ]
   [ [ ASCII:LF eq? ] [ ASCII:CR eq? ] bi or ] tri or or ;
 :c:to-upper     (c-c) dup c:lowercase? 0; drop ASCII:SPACE - ;
 :c:to-lower     (c-c) dup c:uppercase? 0; drop ASCII:SPACE + ;
@@ -201,17 +230,20 @@
     buffer:start s:reverse s:temp ;
 }}
 TRUE 's:RewriteUnderscores var<n>
-:<string>
-  &s:RewriteUnderscores fetch
-  [ [ dup s:length
-      [ dup fetch
-        dup $_ eq? [ drop #32 ] if
-        over store n:inc
-      ] times drop
-    ] sip
-  ] if
-  &prefix:' call ;
-:prefix:' <string> ; immediate
+{{
+  :<string>
+    &s:RewriteUnderscores fetch
+    [ [ dup s:length
+        [ dup fetch
+          dup $_ eq? [ drop #32 ] if
+          over store n:inc
+        ] times drop
+      ] sip
+    ] if
+    &prefix:' call ;
+---reveal---
+  :prefix:' <string> ; immediate
+}}
 :curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
 :does (q-)
   d:last<xt> swap curry d:last d:xt store &class:word reclass ;
