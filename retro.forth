@@ -1,5 +1,4 @@
 :EOM       #524287 ;
-:STRINGS   EOM #12 #128 * - ;
 :prefix:( drop ;
   &class:macro
   &Dictionary fetch d:class store
@@ -99,6 +98,9 @@
 }}
 :later pop pop swap push push ;
 :copy   (aan-) [ &fetch-next dip store-next ] times drop drop ;
+:TempStrings ;   &class:data reclass  #12 &TempStrings store
+:TempStringMax ; &class:data reclass #128 &TempStringMax store
+:STRINGS   EOM &TempStrings fetch &TempStringMax fetch * - ;
 {{
   :MAX-LENGTH #128 ;
   :s:Current `0 ; data

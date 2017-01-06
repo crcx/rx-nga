@@ -60,7 +60,6 @@ Memory Map
 
 ````
 :EOM       #524287 ;
-:STRINGS   EOM #12 #128 * - ;
 ````
 
 ## Stack Comments
@@ -413,6 +412,10 @@ Strings are zero terminated.
 Temporary strings are allocated in a circular pool (at STRINGS).
 
 ````
+:TempStrings ;   &class:data reclass  #12 &TempStrings store
+:TempStringMax ; &class:data reclass #128 &TempStringMax store
+:STRINGS   EOM &TempStrings fetch &TempStringMax fetch * - ;
+
 {{
   :MAX-LENGTH #128 ;
   :s:Current `0 ; data
