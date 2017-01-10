@@ -538,6 +538,12 @@ Return a new string resulting from applying a quotation to each character in a s
 ````
 
 
+````
+:s:substr (sfl-s)
+  [ + s:empty ] dip [ over [ copy ] dip ] sip
+  over [ + #0 swap store ] dip ;
+````
+
 Hash (using DJB2)
 
 ````
@@ -613,6 +619,15 @@ Hash (using DJB2)
   drop FALSE ;
 :c:consonant?   (c-f)
   dup c:letter? [ c:vowel? not ] [ drop FALSE ] choose ;
+````
+
+
+````
+:s:to-upper (s-s)
+  [ c:to-upper ] s:map ;
+
+:s:to-lower (s-s)
+  [ c:to-lower ] s:map ;
 ````
 
 ## Number to String

@@ -160,6 +160,9 @@
     buffer:start
   ;
 }}
+:s:substr (sfl-s)
+  [ + s:empty ] dip [ over [ copy ] dip ] sip
+  over [ + #0 swap store ] dip ;
 {{
   :<s:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
 ---reveal---
@@ -222,6 +225,10 @@
   drop FALSE ;
 :c:consonant?   (c-f)
   dup c:letter? [ c:vowel? not ] [ drop FALSE ] choose ;
+:s:to-upper (s-s)
+  [ c:to-upper ] s:map ;
+:s:to-lower (s-s)
+  [ c:to-lower ] s:map ;
 {{
   :Value `0 ;
 ---reveal---
