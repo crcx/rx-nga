@@ -33,8 +33,8 @@
 :FALSE (-n)  #0 ;
 :n:zero?      (n-f)   #0 eq? ;
 :n:-zero?     (n-f)   #0 -eq? ;
-:n:negative?  (n-f)  #0 lt? ;
-:n:positive?  (n-f)  #-1 gt? ;
+:n:negative?  (n-f)   #0 lt? ;
+:n:positive?  (n-f)   #-1 gt? ;
 :n:strictly-positive?  (n-f)  #0 gt? ;
 :n:even?      (n-f)  #2 /mod drop n:zero? ;
 :n:odd?       (n-f)  #2 /mod drop n:-zero? ;
@@ -51,7 +51,7 @@
 :times  (q-)  swap [ repeat 0; #1 - push &call sip pop again ] call drop ;
 :case
   [ over eq? ] dip swap
-  [ nip call #-1 ] [ drop #0 ] choose 0; pop drop drop ;
+  [ nip call TRUE ] [ drop FALSE ] choose 0; pop drop drop ;
 :compiling?  (-f)  &Compiler fetch ;
 :rot       (abc-bca)   [ swap ] dip swap ;
 :tors (-n)  pop pop dup push swap push ;
@@ -62,7 +62,7 @@
 :n:pow     (bp-n)  #1 swap [ over * ] times nip ;
 :n:negate  (n-n)   #-1 * ;
 :n:square  (n-n)   dup * ;
-:n:sqrt    (n-n) #1 [ repeat dup-pair / over - #2 / 0; + again ] call nip ;
+:n:sqrt    (n-n)   #1 [ repeat dup-pair / over - #2 / 0; + again ] call nip ;
 :n:min     (nn-n)  dup-pair lt? [ drop ] [ nip ] choose ;
 :n:max     (nn-n)  dup-pair gt? [ drop ] [ nip ] choose ;
 :n:abs     (n-n)   dup n:negate n:max ;
@@ -105,19 +105,19 @@
   :MAX-LENGTH #128 ;
   :s:Current `0 ; data
   :s:pointer (-p)  &s:Current fetch MAX-LENGTH * STRINGS + ;
-  :s:next    (-) &s:Current v:inc &s:Current fetch #12 eq? [ #0 &s:Current store ] if ;
+  :s:next    (-)   &s:Current v:inc &s:Current fetch &TempStrings fetch eq? [ #0 &s:Current store ] if ;
 ---reveal---
   :s:temp (s-s) dup s:length n:inc s:pointer swap copy s:pointer s:next ;
   :s:empty (-s) s:pointer s:next ;
 }}
-:s:skip (-) pop [ fetch-next #0 -eq? ] while n:dec push ;
+:s:skip (-) pop [ fetch-next n:-zero? ] while n:dec push ;
 :s:keep (s-s) compiling? [ &s:skip class:word ] if here [ s, ] dip class:data ;
 :prefix:' compiling? [ s:keep ] [ s:temp ] choose ; immediate
 :s:chop (s-s) s:temp dup s:length over + n:dec #0 swap store ;
 :s:reverse (s-s)
   dup s:temp buffer:set &s:length [ dup s:length + n:dec ] bi swap
   [ dup fetch buffer:add n:dec ] times drop buffer:start s:temp ;
-:s:trim-left (s-s) s:temp [ fetch-next [ #32 eq? ] [ #0 -eq? ] bi and ] while n:dec ;
+:s:trim-left (s-s) s:temp [ fetch-next [ #32 eq? ] [ n:zero? ] bi and ] while n:dec ;
 :s:trim-right (s-s) s:temp s:reverse s:trim-left s:reverse ;
 :s:trim (s-s) s:trim-right s:trim-left ;
 :s:prepend (ss-s)
@@ -130,7 +130,7 @@
    &Needle store
    repeat
      fetch-next
-     dup #0 eq? [ drop drop #0 #0 ] [ #-1 ] choose 0; drop
+     dup n:zero? [ drop drop #0 #0 ] [ #-1 ] choose 0; drop
      &Needle fetch eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
   again ;
 }}
