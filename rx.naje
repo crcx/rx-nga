@@ -3,7 +3,7 @@
 :Heap
   .data 1536
 :Version
-  .data 201701
+  .data 201702
 :_nop
   .data 0
   ret
@@ -261,6 +261,8 @@
   store
   ret
 :class:data
+  nop
+  nop
   lit &compiling?
   call
   zret
@@ -282,6 +284,8 @@
   call
   ret
 :class:word
+  nop
+  nop
   lit &compiling?
   call
   lit &class:word:compile
@@ -290,6 +294,8 @@
   call
   ret
 :class:primitive
+  nop
+  nop
   lit &compiling?
   call
   lit &comma:opcode
@@ -298,6 +304,8 @@
   call
   ret
 :class:macro
+  nop
+  nop
   call
   ret
 :d:link
@@ -418,6 +426,8 @@
   add
   ret
 :s:to-number
+  nop
+  nop
   lit &to-number:prepare
   call
   lit &to-number:convert

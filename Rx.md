@@ -1,7 +1,7 @@
     ____  _   _
     || \\ \\ //
     ||_//  )x(
-    || \\ // \\ 2017.01
+    || \\ // \\ 2017.02
     a minimalist forth for nga
 
 *Rx* (*retro experimental*) is a minimal Forth implementation for the Nga virtual machine. Like Nga this is intended to be used within a larger supporting framework adding I/O and other desired functionality. Various example interface layers are included.
@@ -33,7 +33,7 @@ Naje, the Nga assembler, compiles the initial instructions automatically. The tw
 :Heap
   .data 1536
 :Version
-  .data 201701
+  .data 201702
 ````
 
 Both of these are pointers. **Dictionary** points to the most recent dictionary entry. (See the *Dictionary* section at the end of this file.) **Heap** points to the next free memory address. This is hard coded to an address beyond the end of the Rx kernel. It'll be fine tuned as development progresses. See the *Interpreter &amp; Compiler* section for more on this.
@@ -416,6 +416,8 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
 
 ````
 :class:data
+  nop
+  nop
   lit &compiling?
   call
   zret
@@ -446,6 +448,8 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
   call
   ret
 :class:word
+  nop
+  nop
   lit &compiling?
   call
   lit &class:word:compile
@@ -463,6 +467,8 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
 
 ````
 :class:primitive
+  nop
+  nop
   lit &compiling?
   call
   lit &comma:opcode
@@ -480,6 +486,8 @@ Rx is built over the concept of *word classes*. Word classes are a way to group 
 
 ````
 :class:macro
+  nop
+  nop
   call
   ret
 ````
@@ -670,6 +678,8 @@ At this time Rx only supports decimal numbers.
   add
   ret
 :s:to-number
+  nop
+  nop
   lit &to-number:prepare
   call
   lit &to-number:convert
