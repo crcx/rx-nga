@@ -59,7 +59,7 @@ Memory Map
 | 524287          | end of memory                |
 
 ````
-:EOM       #524287 ;
+:EOM       #-3 fetch ;
 ````
 
 ## Stack Comments

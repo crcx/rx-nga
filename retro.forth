@@ -1,4 +1,4 @@
-:EOM       #524287 ;
+:EOM       #-3 fetch ;
 :prefix:( drop ;
   &class:macro
   &Dictionary fetch d:class store
@@ -276,7 +276,7 @@ TRUE 's:RewriteUnderscores var<n>
     &SystemState #1 + fetch &Dictionary store ;
 }}
 {{
-  'Values var #8 allot
+  'Values var #27 allot
   :from s:length dup [ [ &Values + store ] sip n:dec ] times drop ;
   :to dup s:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
 ---reveal---
