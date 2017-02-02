@@ -702,9 +702,26 @@ TRUE 's:RewriteUnderscores var<n>
 }}
 ````
 
+# Large Scale Stack Reshuffling
+
+This is a bit of a hack, but very useful at times.
+
+Assume you have a bunch of values:
+
+    #3 #1 #2 #5
+
+And you want to reorder them into something new:
+
+    #1 #3 #5 #5 #2 #1
+
+Rather than using a lot of shufflers, **reorder** simplfies this into:
+
+    #3 #1 #2 #5
+    'abcd  'baddcb reorder
+
 ````
 {{
-  'Values var #8 allot
+  'Values var #27 allot
   :from s:length dup [ [ &Values + store ] sip n:dec ] times drop ;
   :to dup s:length [ fetch-next $a -  n:inc &Values + fetch swap ] times drop ;
 ---reveal---
