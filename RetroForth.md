@@ -477,7 +477,7 @@ namespace for working with them.
   :buffer:size   (-n) buffer:end buffer:start - ;
   :buffer:set    (a-) !Buffer buffer:empty ;
   :buffer:preserve (q-)
-    @Buffer @Ptr [ [ call ] dip !Ptr ] dip !Buffer ;
+    @Buffer @Ptr [ [ call ] dip !Buffer ] dip !Ptr ;
 }}
 ````
 
@@ -579,21 +579,18 @@ spaces from a string. `s:trim` removes both leading and trailing spaces.
 :s:append (ss-s) swap s:prepend ;
 ````
 
-`s:has-char?` returns a flag indicating whether or not a given
-character is in a string.
+`s:for-each` executes a quote once for each cell in string. It is
+a key part of building the other high-level string operations.
 
 ````
-{{
-  :Needle `0 ; data
----reveal---
-  :s:has-char?  (sc-f)
-   !Needle
-   repeat
-     fetch-next
-     dup n:zero? [ drop drop #0 #0 ] [ #-1 ] choose 0; drop
-     @Needle eq? [ #-1 #0 ] [ #-1 ] choose 0; drop
-  again ;
-}}
+:s:for-each (sq-)
+  [ repeat
+      over fetch 0; drop
+      dup-pair
+      [ [ [ fetch ] dip call ] dip ] dip
+      [ n:inc ] dip
+    again
+  ] call drop-pair ;
 ````
 
 `s:filter` returns a new string, consisting of the characters from
@@ -602,23 +599,13 @@ another string that are filtered by a quotation.
     'This_is_a_test [ c:-vowel? ] s:filter
 
 ````
-{{
-  'Source var
-  'Q var
-  :<Source> @Source fetch ;
-  :run-filter @Q call ;
-  :init  (sq-)  !Q  !Source ;
----reveal---
-  :s:filter (sq-s)
-    [ init s:empty buffer:set
-      @Source s:length
-      [ <Source> run-filter [ <Source> buffer:add ] if
-        &Source v:inc
-      ] times
-      buffer:start
-    ] buffer:preserve
-  ;
-}}
+:s:filter (sq-s)
+  [ s:empty buffer:set swap
+    [ dup-pair swap call
+        [ buffer:add ]
+        [ drop       ] choose
+    ] s:for-each drop buffer:start
+  ] buffer:preserve ;
 ````
 
 `s:map` Return a new string resulting from applying a quotation to each
@@ -627,23 +614,11 @@ character in a source string.
     'This_is_a_test [ $_ [ ASCII:SPACE ] case ] s:map
 
 ````
-{{
-  'Source var
-  'Q var
-  :<Source> @Source fetch ;
-  :run-filter &Q fetch call ;
----reveal---
-  :s:map (sq-s)
-    [ !Q  !Source
-      s:empty buffer:set
-      @Source s:length
-      [ <Source> run-filter buffer:add
-        &Source v:inc
-      ] times
-      buffer:start
-    ] buffer:preserve
-  ;
-}}
+:s:map (sq-s)
+  [ s:empty buffer:set swap
+    [ over call buffer:add ]
+    s:for-each drop buffer:start
+  ] buffer:preserve ;
 ````
 
 `s:substr` returns a subset of a string. Provide it with a string,
@@ -658,11 +633,7 @@ a starting offset, and a length.
 Hash (using DJB2)
 
 ````
-{{
-  :<s:hash> repeat push #33 * pop fetch-next 0; swap push + pop again ;
----reveal---
-  :s:hash  (s-n)  #5381 swap <s:hash> drop ;
-}}
+:s:hash (s-n) #5381 swap [ swap #33 * + ] s:for-each ;
 ````
 
 Not all characters can be obtained via the $ prefix. ASCII has many
@@ -776,51 +747,35 @@ underscores into spaces.
 TRUE 'RewriteUnderscores var<n>
 
 {{
-  :rewrite
-    @RewriteUnderscores
-    [ [ dup s:length
-        [ dup fetch
-          dup $_ eq? [ drop #32 ] if
-          over store n:inc
-        ] times drop
-      ] sip
-    ] if
-    &prefix:' call ;
+  :sub (c-c) $_ [ ASCII:SPACE ] case ;
+  :rewrite (s-s)
+    @RewriteUnderscores [ [ sub ] s:map ] if &prefix:' call ;
 ---reveal---
   :prefix:' rewrite ; immediate
 }}
 ````
 
-`s:for-each` executes a quote once for each cell in string.
-
-````
-:s:for-each (sq-)
-  [ repeat
-      over fetch 0; drop
-      dup-pair
-      [ [ [ fetch ] dip call ] dip ] dip
-      [ n:inc ] dip
-    again
-  ] call drop-pair ;
-````
 
 Building on `s:for-each`, I am able to implement `s:index-of`, which
 finds the first instance of a character in a string.
 
 ````
-{{
-  'I var
-  'O var
-  :-found? (-f)  @I n:zero? ;
-  :update  (-)   @O !I ;
----reveal---
-  :s:index-of (sc-n)
-    #0 !I
-    #0 !O
-    swap [ over eq? [ -found? [ update ] if ] if &O v:inc ] s:for-each
-    drop @I
-  ;
-}}
+:s:index-of (sc-n)
+  swap [ repeat
+           fetch-next 0; swap
+           [ over -eq? ] dip
+           swap 0; drop
+         again
+       ] sip
+  [ - n:dec nip ] sip
+  s:length over eq? [ drop #-1 ] if ;
+````
+
+`s:has-char?` returns a flag indicating whether or not a given
+character is in a string.
+
+````
+:s:has-char? (sc-f) s:index-of #-1 -eq? ;
 ````
 
 Ok, This is a bit of a hack, but very useful at times.
