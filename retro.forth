@@ -56,6 +56,9 @@
 :case
   [ over eq? ] dip swap
   [ nip call TRUE ] [ drop FALSE ] choose 0; pop drop drop ;
+:s:case
+  [ over s:eq? ] dip swap
+  [ nip call TRUE ] [ drop FALSE ] choose 0; pop drop drop ;
 :rot  (abc-bca)   [ swap ] dip swap ;
 :tors (-n)  pop pop dup push swap push ;
 :/         (nq-d)  /mod swap drop ;
@@ -249,12 +252,37 @@ TRUE 'RewriteUnderscores var<n>
 }}
 :curry (vp-p) here [ swap compile:lit compile:call compile:ret ] dip ;
 :does  (q-)   d:last<xt> swap curry d:last d:xt store &class:word reclass ;
+:d:for-each (q-)
+  &Dictionary [ repeat fetch 0;
+ dup-pair [ [ swap call ] dip ] dip again ] call drop ;
+{{
+  :char (c-)
+    $n [ ASCII:LF buffer:add ] case
+    $t [ ASCII:HT buffer:add ] case
+    buffer:add ;
+  :string (a-a)
+    repeat fetch-next 0; buffer:add again ;
+  :type (aac-)
+    $c [ swap buffer:add              ] case
+    $s [ swap string drop             ] case
+    $n [ swap n:to-string string drop ] case
+    drop ;
+  :handle (ac-a)
+    $\ [ fetch-next char ] case
+    $% [ fetch-next type ] case
+    buffer:add ;
+---reveal---
+  :s:with-format (...s-s)
+    [ s:empty [ buffer:set
+      [ repeat fetch-next 0; handle again ]
+      call drop ] sip ] buffer:preserve ;
+}}
 :putc (c-) `1000 ;
 :nl   (-)  ASCII:LF putc ;
 :sp   (-)  ASCII:SPACE putc ;
 :tab  (-)  ASCII:HT putc ;
 :puts (s-) [ putc ] s:for-each ;
 :putn (n-) n:to-string puts ;
-:words  (-)  &Dictionary repeat fetch 0; dup d:name puts sp again ;
+:words  (-)  [ d:name puts sp ] d:for-each ;
 :depth  (-n) #-1 fetch ;
 :reset  (...-) depth repeat 0; push drop pop #1 - again ;
