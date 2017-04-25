@@ -633,6 +633,14 @@ a starting offset, and a length.
   over [ + #0 swap store ] dip ;
 ````
 
+`s:right` and `s:left` are similar to `s:substr`, but operate
+from fixed ends of the string.
+
+````
+:s:right (sn-s) over s:length over - swap s:substr ;
+:s:left  (sn-s) #0 swap s:substr ;
+````
+
 Hash (using DJB2)
 
 ````
@@ -774,11 +782,51 @@ finds the first instance of a character in a string.
   s:length over eq? [ drop #-1 ] if ;
 ````
 
-`s:has-char?` returns a flag indicating whether or not a given
+`s:contains-char?` returns a flag indicating whether or not a given
 character is in a string.
 
 ````
-:s:has-char? (sc-f) s:index-of #-1 -eq? ;
+:s:contains-char? (sc-f) s:index-of #-1 -eq? ;
+````
+
+`s:contains-string?` returns a flag indicating whether or not a given
+substring is in a string.
+
+````
+{{
+  'Src var
+  'Tar var
+  'Pad var
+  'I   var
+  'F   var
+
+  :terminate (-)
+    #0 @Pad @Tar s:length + store ;
+
+  :extract (-)
+    @Src @I + @Pad @Tar s:length copy ;
+
+  :compare (-)
+    @Pad @Tar s:eq? @F or !F ;
+
+  :next (-)
+    &I v:inc ;
+---reveal---
+  :s:contains-string? (ss-f)
+    !Tar !Src s:empty !Pad #0 !I #0 !F
+    @Src s:length
+    [ extract terminate compare next ] times
+    @F ;
+}}
+````
+
+The `s:split` splits a string on the first instance of a given
+character. Results are undefined if the character can not be
+located.
+
+````
+:s:split (sc-ss)
+  dup-pair s:index-of nip dup-pair s:left [ + ] dip ;
 ````
 
 Ok, This is a bit of a hack, but very useful at times.
